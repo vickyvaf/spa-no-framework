@@ -1,7 +1,12 @@
 let state = {
   inputValue: "",
   list: JSON.parse(localStorage.getItem("list")) ?? [],
+  buttonStatus: true,
 };
+
+function setButtonStatus(status) {
+  state.buttonStatus = status;
+}
 
 function setState(newState) {
   const prevState = { ...state };
@@ -9,14 +14,6 @@ function setState(newState) {
   state = nextState;
 
   render();
-  onStateChange(prevState, nextState);
-}
-
-function onStateChange(prevState, nextState) {
-  // localStorage.setItem("list", nextState.inputValue);
-
-  if (prevState.inputValue !== nextState.inputValue) {
-  }
 }
 
 function HomePage() {
@@ -26,8 +23,17 @@ function HomePage() {
   input.id = "input";
   input.autocomplete = "off";
 
+  const editInput = document.createElement("input");
+  editInput.placeholder = "Type to add...";
+  editInput.id = "input";
+  editInput.autocomplete = "off";
+
   const addButton = document.createElement("button");
   addButton.textContent = "Add";
+
+  const editButton = document.createElement("button");
+  editButton.textContent = "Update";
+  editButton.style.display = "none";
 
   const textWarn = document.createElement("p");
 
@@ -36,14 +42,17 @@ function HomePage() {
   //----- Action -----//
   input.value = state.inputValue;
   input.oninput = function (event) {
-    setState({ inputValue: event.target.value });
+    state.inputValue = event.target.value;
+    if (state.inputValue !== "") {
+      textWarn.textContent = "";
+    }
   };
 
   addButton.onclick = function () {
     textWarn.textContent = "Form can't empty";
 
     if (state.inputValue !== "") {
-      setState({ list: [...state.list, state.inputValue] })
+      setState({ list: [...state.list, state.inputValue] });
       localStorage.setItem("list", JSON.stringify(state.list));
       setState({ inputValue: "" });
     }
@@ -51,26 +60,69 @@ function HomePage() {
 
   state.list.forEach((data, i) => {
     const li = document.createElement("span");
+
     const deleteIcon = document.createElement("img");
     deleteIcon.src = "./public/icons/delete.png";
+
+    const editIcon = document.createElement("img");
+    editIcon.src = "./public/icons/edit.png";
+
+    const iconWrapper = document.createElement("div");
     const listWrapper = document.createElement("div");
 
     li.textContent = data;
 
     deleteIcon.onclick = function () {
       state.list.splice(i, 1);
-      localStorage.setItem("list", JSON.stringify(state.list))
+      localStorage.setItem("list", JSON.stringify(state.list));
       setState();
     };
 
+    editIcon.onclick = function () {
+      setButtonStatus(false);
+      if (state.buttonStatus === false) {
+        addButton.style.display = "none";
+        editButton.style.display = "block";
+
+        state.inputValue = data;
+        input.value = state.inputValue;
+
+        editButton.onclick = function () {
+          textWarn.textContent = "Form can't empty";
+
+          if (state.inputValue !== "") {
+            setButtonStatus(true);
+
+            state.list.splice(i, 1);
+            setState({ list: [...state.list, state.inputValue] });
+            localStorage.setItem("list", JSON.stringify(state.list));
+            setState({ inputValue: "" });
+
+            addButton.style.display = "block";
+            editButton.style.display = "none";
+          }
+        };
+      }
+    };
+
+    iconWrapper.append(editIcon);
+    iconWrapper.append(deleteIcon);
     listWrapper.append(li);
-    listWrapper.append(deleteIcon);
+    listWrapper.append(iconWrapper);
     listContainer.append(listWrapper);
 
     //----- Styles -----//
+    editIcon.style.width = "1em";
+    editIcon.style.height = "1em";
+    editIcon.style.cursor = "pointer";
+
     deleteIcon.style.width = "1em";
     deleteIcon.style.height = "1em";
     deleteIcon.style.cursor = "pointer";
+
+    iconWrapper.style.display = "flex";
+    iconWrapper.style.alignItems = "center";
+    iconWrapper.style.gap = "0.5rem";
 
     listWrapper.style.margin = "0.4rem 0";
     listWrapper.style.display = "flex";
@@ -80,25 +132,39 @@ function HomePage() {
 
   //----- Container -----//
   const div = document.createElement("div");
-  div.append(input);
-  div.append(addButton);
+  const inputWrapper = document.createElement("div");
+
+  inputWrapper.append(input);
+  inputWrapper.append(editButton);
+  inputWrapper.append(addButton);
+
+  div.append(inputWrapper);
   div.append(textWarn);
   div.append(listContainer);
 
   //----- Styles -----//
-  div.style.maxWidth = "fit-content";
+  div.style.maxWidth = "320px";
   div.style.margin = "0 auto";
 
-  listContainer.style.marginTop = "1.5rem";
-  listContainer.style.display = "flex";
-  listContainer.style.flexDirection = "column-reverse";
+  input.style.width = "70%";
 
+  addButton.style.width = "30%";
   addButton.style.cursor = "pointer";
+
+  editButton.style.width = "30%";
+  editButton.style.cursor = "pointer";
+
+  inputWrapper.style.display = "flex";
+  inputWrapper.style.alignItems = "center";
 
   textWarn.style.color = "red";
   textWarn.style.fontSize = "10px";
   textWarn.style.position = "absolute";
-  textWarn.style.transform = "translate(100%, -80%)";
+  textWarn.style.transform = "translate(180%, -80%)";
+
+  listContainer.style.marginTop = "1.5rem";
+  listContainer.style.display = "flex";
+  listContainer.style.flexDirection = "column-reverse";
 
   return div;
 }
