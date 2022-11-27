@@ -9,9 +9,7 @@ function setButtonStatus(status) {
 }
 
 function setState(newState) {
-  const prevState = { ...state };
-  const nextState = { ...state, ...newState };
-  state = nextState;
+  state = { ...state, ...newState };
 
   render();
 }
@@ -169,7 +167,7 @@ function HomePage() {
   return div;
 }
 
-export function render() {
+function render() {
   const root = document.getElementById("root");
 
   const focusedElementId = document.activeElement.id;
