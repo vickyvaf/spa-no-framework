@@ -78,6 +78,8 @@ function HomePage() {
   div.style.maxWidth = "fit-content";
   div.style.margin = "0 auto";
 
+  addButton.style.cursor = "pointer"
+
   return div;
 }
 
