@@ -1,6 +1,6 @@
 let state = {
   inputValue: "",
-  list: [],
+  list: JSON.parse(localStorage.getItem("list")) ?? [],
 };
 
 function setState(newState) {
@@ -9,23 +9,27 @@ function setState(newState) {
   state = nextState;
 
   render();
-  // onStateChange(prevState, nextState);
+  onStateChange(prevState, nextState);
 }
 
-// function onStateChange(prevState, nextState) {
-//   if (prevState.inputValue !== nextState.inputValue) {
-//     localStorage.setItem("list", nextState.inputValue);
-//   }
-// }
+function onStateChange(prevState, nextState) {
+  // localStorage.setItem("list", nextState.inputValue);
+
+  if (prevState.inputValue !== nextState.inputValue) {
+  }
+}
 
 function HomePage() {
   //----- Element -----//
   const input = document.createElement("input");
   input.placeholder = "Type to add...";
   input.id = "input";
+  input.autocomplete = "off";
 
   const addButton = document.createElement("button");
   addButton.textContent = "Add";
+
+  const textWarn = document.createElement("p");
 
   const listContainer = document.createElement("div");
 
@@ -36,8 +40,13 @@ function HomePage() {
   };
 
   addButton.onclick = function () {
-    setState({ list: [...state.list, state.inputValue] });
-    setState({ inputValue: "" });
+    textWarn.textContent = "Form can't empty";
+
+    if (state.inputValue !== "") {
+      setState({ list: [...state.list, state.inputValue] })
+      localStorage.setItem("list", JSON.stringify(state.list));
+      setState({ inputValue: "" });
+    }
   };
 
   state.list.forEach((data, i) => {
@@ -50,6 +59,7 @@ function HomePage() {
 
     deleteIcon.onclick = function () {
       state.list.splice(i, 1);
+      localStorage.setItem("list", JSON.stringify(state.list))
       setState();
     };
 
@@ -60,9 +70,9 @@ function HomePage() {
     //----- Styles -----//
     deleteIcon.style.width = "1em";
     deleteIcon.style.height = "1em";
-    deleteIcon.style.cursor = "pointer"
+    deleteIcon.style.cursor = "pointer";
 
-    listWrapper.style.margin = "0.7rem 0"
+    listWrapper.style.margin = "0.4rem 0";
     listWrapper.style.display = "flex";
     listWrapper.style.alignItems = "center";
     listWrapper.style.justifyContent = "space-between";
@@ -72,13 +82,23 @@ function HomePage() {
   const div = document.createElement("div");
   div.append(input);
   div.append(addButton);
+  div.append(textWarn);
   div.append(listContainer);
 
   //----- Styles -----//
   div.style.maxWidth = "fit-content";
   div.style.margin = "0 auto";
 
-  addButton.style.cursor = "pointer"
+  listContainer.style.marginTop = "1.5rem";
+  listContainer.style.display = "flex";
+  listContainer.style.flexDirection = "column-reverse";
+
+  addButton.style.cursor = "pointer";
+
+  textWarn.style.color = "red";
+  textWarn.style.fontSize = "10px";
+  textWarn.style.position = "absolute";
+  textWarn.style.transform = "translate(100%, -80%)";
 
   return div;
 }
