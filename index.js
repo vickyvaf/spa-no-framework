@@ -138,6 +138,7 @@ function AddToDo() {
     listContainer.append(listWrapper);
 
     wrapperLeft.style.display = "flex";
+    wrapperLeft.style.alignItems = "center";
     wrapperLeft.style.gap = "0.8rem";
 
     iconWrapperRight.style.display = "flex";
@@ -185,7 +186,7 @@ function CheckedToDo() {
 
   const listContainer = document.createElement("div");
 
-  state.checkedList.map((data, i) => {
+  state.checkedList.forEach((data, i) => {
     const li = document.createElement("s");
 
     const undoIcon = document.createElement("img");
