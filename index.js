@@ -21,7 +21,7 @@ function onStateChange(prevState, nextState) {
     localStorage.setItem("list2", JSON.stringify(state.list));
     localStorage.setItem("checkedList2", JSON.stringify(state.checkedList));
   }
-  if (prevState.list !== nextState.list || prevState.checkedList !== nextState.checkedList) {
+  if (nextState.checkedList !== nextState.list) {
     localStorage.setItem("list2", JSON.stringify(state.list));
     localStorage.setItem("checkedList2", JSON.stringify(state.checkedList));
   }
@@ -116,7 +116,7 @@ function AddToDo() {
 
     deleteIcon.onclick = function () {
       state.list.splice(i, 1);
-      setState({list: [...state.list]})
+      setState({ list: [...state.list] });
     };
 
     const wrapperLeft = document.createElement("div");
@@ -201,7 +201,7 @@ function CheckedToDo() {
 
     deleteIcon.onclick = function () {
       state.checkedList.splice(i, 1);
-      setState({checkedList: [...state.checkedList]})
+      setState({ checkedList: [...state.checkedList] });
     };
 
     const listWrapper = document.createElement("div");
