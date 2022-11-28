@@ -86,16 +86,19 @@ function AddToDo() {
     checkedIcon.src = "./public/icons/check.png";
     checkedIcon.style.width = "1em";
     checkedIcon.style.height = "1em";
+    checkedIcon.style.cursor = "pointer";
 
     const editIcon = document.createElement("img");
     editIcon.src = "./public/icons/edit.png";
     editIcon.style.width = "1em";
     editIcon.style.height = "1em";
+    editIcon.style.cursor = "pointer";
 
     const deleteIcon = document.createElement("img");
     deleteIcon.src = "./public/icons/delete.png";
     deleteIcon.style.width = "1em";
     deleteIcon.style.height = "1em";
+    deleteIcon.style.cursor = "pointer";
 
     li.textContent = truncate(data);
 
@@ -161,7 +164,10 @@ function AddToDo() {
 
   input.style.width = "70%";
   addButton.style.width = "30%";
+  addButton.style.cursor = "pointer";
+
   editButton.style.width = "30%";
+  editButton.style.cursor = "pointer";
 
   inputWrapper.style.display = "flex";
   inputWrapper.style.alignItems = "center";
@@ -186,11 +192,13 @@ function CheckedToDo() {
     undoIcon.src = "./public/icons/undo.png";
     undoIcon.style.width = "1em";
     undoIcon.style.height = "1em";
+    undoIcon.style.cursor = "pointer";
 
     const deleteIcon = document.createElement("img");
     deleteIcon.src = "./public/icons/delete.png";
     deleteIcon.style.width = "1em";
     deleteIcon.style.height = "1em";
+    deleteIcon.style.cursor = "pointer";
 
     li.textContent = truncate(data);
 
