@@ -9,9 +9,18 @@ function setButtonStatus(status) {
 }
 
 function setState(newState) {
-  state = { ...state, ...newState };
+  const prevState = { ...state };
+  const nextState = { ...state, ...newState };
+  state = nextState;
 
   render();
+  onStateChange(prevState, nextState);
+}
+
+function onStateChange(prevState, nextState) {
+  if (prevState.list !== nextState.list) {
+    localStorage.setItem("list", JSON.stringify(state.list));
+  }
 }
 
 function HomePage() {
@@ -51,7 +60,6 @@ function HomePage() {
 
     if (state.inputValue !== "") {
       setState({ list: [...state.list, state.inputValue] });
-      localStorage.setItem("list", JSON.stringify(state.list));
       setState({ inputValue: "" });
     }
   };
@@ -72,8 +80,7 @@ function HomePage() {
 
     deleteIcon.onclick = function () {
       state.list.splice(i, 1);
-      localStorage.setItem("list", JSON.stringify(state.list));
-      setState();
+      setState({ list: [...state.list] });
     };
 
     editIcon.onclick = function () {
@@ -93,7 +100,6 @@ function HomePage() {
 
             state.list.splice(i, 1);
             setState({ list: [...state.list, state.inputValue] });
-            localStorage.setItem("list", JSON.stringify(state.list));
             setState({ inputValue: "" });
 
             addButton.style.display = "block";
