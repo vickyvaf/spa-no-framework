@@ -1,12 +1,7 @@
 let state = {
   inputValue: "",
   list: JSON.parse(localStorage.getItem("list")) ?? [],
-  buttonStatus: true,
 };
-
-function setButtonStatus(status) {
-  state.buttonStatus = status;
-}
 
 function setState(newState) {
   const prevState = { ...state };
@@ -64,6 +59,18 @@ function HomePage() {
     }
   };
 
+  editButton.onclick = function () {
+    textWarn.textContent = "Form can't empty";
+
+    if (state.inputValue !== "") {
+      setState({ list: [...state.list, state.inputValue] });
+      setState({ inputValue: "" });
+
+      addButton.style.display = "block";
+      editButton.style.display = "none";
+    }
+  };
+
   state.list.forEach((data, i) => {
     const li = document.createElement("span");
 
@@ -84,29 +91,13 @@ function HomePage() {
     };
 
     editIcon.onclick = function () {
-      setButtonStatus(false);
-      if (state.buttonStatus === false) {
-        addButton.style.display = "none";
-        editButton.style.display = "block";
+      addButton.style.display = "none";
+      editButton.style.display = "block";
 
-        state.inputValue = data;
-        input.value = state.inputValue;
+      state.list.splice(i, 1);
 
-        editButton.onclick = function () {
-          textWarn.textContent = "Form can't empty";
-
-          if (state.inputValue !== "") {
-            setButtonStatus(true);
-
-            state.list.splice(i, 1);
-            setState({ list: [...state.list, state.inputValue] });
-            setState({ inputValue: "" });
-
-            addButton.style.display = "block";
-            editButton.style.display = "none";
-          }
-        };
-      }
+      state.inputValue = data;
+      input.value = state.inputValue;
     };
 
     iconWrapper.append(editIcon);
