@@ -246,6 +246,8 @@ function render() {
   root.append(CheckedToDo());
 
   // Style
+  root.style.width = "fit-content";
+  root.style.margin = "0 auto";
   root.style.display = "flex";
   root.style.gap = "5rem";
 }
