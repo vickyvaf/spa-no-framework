@@ -18,7 +18,6 @@ function onStateChange(prevState, nextState) {
     localStorage.setItem("list2", JSON.stringify(state.list));
   }
   if (prevState.checkedList !== nextState.checkedList) {
-    localStorage.setItem("list2", JSON.stringify(state.list));
     localStorage.setItem("checkedList2", JSON.stringify(state.checkedList));
   }
   if (nextState.checkedList !== nextState.list) {
