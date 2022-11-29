@@ -106,6 +106,9 @@ function render() {
   root.innerHTML = "";
   root.append(HomePage());
 
+  root.style.maxWidth = "fit-content"
+  root.style.margin = "0 auto"
+
   if (focusedElementId) {
     const focusedElement = document.getElementById(focusedElementId);
     focusedElement.focus();
