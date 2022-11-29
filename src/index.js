@@ -2,9 +2,12 @@ import { Loader } from "./utils/Loader.js";
 import { ItemNotFound } from "./utils/ItemNotFound.js";
 
 let state = {
+  baseUrl: "https://dummyjson.com/products/search?q=",
   datas: [],
   searchInputValue: "",
   isLoading: true,
+  isSearch: false,
+  isError: null,
 };
 
 function setState(newState) {
@@ -17,47 +20,40 @@ function setState(newState) {
 }
 
 function onStateChange(prevState, nextState) {
-  if (prevState.searchInputValue !== nextState.searchInputValue) {
-    searchProducts();
+  if (nextState.isSearch === true) {
+    fetchDatas();
   }
 }
 
 async function fetchDatas() {
-  await fetch("https://dummyjson.com/products")
+  await fetch(`${state.baseUrl}${state.searchInputValue}`)
     .then((res) => res.json())
     .then((res) => setState({ datas: res.products }))
-    .catch()
-    .finally(() => setState({ isLoading: false }));
+    .catch((err) => setState({ isError: err }))
+    .finally(() =>
+      setState({ isLoading: false, isSearch: false, searchInputValue: "" })
+    );
 }
-fetchDatas();
 
-async function searchProducts() {
-  await fetch(
-    `https://dummyjson.com/products/search?q=${state.searchInputValue}`
-  )
-    .then((res) => res.json())
-    .then((res) => setState({ datas: res.products }))
-    .catch()
-    .finally(() => setState({ isLoading: false }));
-}
+fetchDatas();
 
 function HomePage() {
   const div = document.createElement("div");
   const listWrapper = document.createElement("div");
 
   const searchInput = document.createElement("input");
+  searchInput.autocomplete = "off";
   searchInput.id = "input";
 
   const searchButton = document.createElement("button");
   searchButton.textContent = "Search";
 
+  const errorMsg = document.createElement("p");
+  errorMsg.textContent = state.isError;
+
   searchInput.value = state.searchInputValue;
   searchInput.oninput = function (event) {
-    // realtime search
-    // setState({ searchInputValue: event.target.value });
-
-    // search button clicked
-    state.searchInputValue = event.target.value;
+    setState({ searchInputValue: event.target.value });
   };
 
   div.append(searchInput);
@@ -65,14 +61,23 @@ function HomePage() {
 
   if (state.isLoading === true) {
     div.append(Loader());
+    searchButton.disabled = "true";
   }
 
-  if (state.isLoading === false && state.datas.length === 0) {
+  if (
+    state.isLoading === false &&
+    state.datas.length === 0 &&
+    state.isError === null
+  ) {
     div.append(ItemNotFound());
   }
 
+  if (state.isError !== null) {
+    div.append(errorMsg);
+  }
+
   if (state.isLoading === false) {
-    state.datas.forEach((data, i) => {
+    state.datas.forEach((data) => {
       const li = document.createElement("p");
       li.textContent = data.title;
 
@@ -81,12 +86,12 @@ function HomePage() {
   }
 
   searchButton.onclick = function () {
-    setState({ isLoading: true });
-
-    searchProducts();
+    setState({ isSearch: true, isLoading: true });
   };
 
   div.append(listWrapper);
+
+  searchButton.style.cursor = "pointer";
 
   return div;
 }
