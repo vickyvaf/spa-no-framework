@@ -1,3 +1,6 @@
+import { Loader } from "./utils/Loader.js";
+import { ItemNotFound } from "./utils/ItemNotFound.js";
+
 let state = {
   datas: [],
   searchInputValue: "",
@@ -38,13 +41,6 @@ async function searchProducts() {
     .finally(() => setState({ isLoading: false }));
 }
 
-function Loader() {
-  const loading = document.createElement("p");
-  loading.textContent = "Loading...";
-
-  return loading;
-}
-
 function HomePage() {
   const div = document.createElement("div");
   const listWrapper = document.createElement("div");
@@ -54,9 +50,6 @@ function HomePage() {
 
   const searchButton = document.createElement("button");
   searchButton.textContent = "Search";
-
-  const none = document.createElement("p");
-  none.textContent = "Item not found";
 
   searchInput.value = state.searchInputValue;
   searchInput.oninput = function (event) {
@@ -75,7 +68,7 @@ function HomePage() {
   }
 
   if (state.isLoading === false && state.datas.length === 0) {
-    div.append(none);
+    div.append(ItemNotFound());
   }
 
   if (state.isLoading === false) {
