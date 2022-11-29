@@ -2,6 +2,10 @@ let state = {
   inputValue: "",
   list: JSON.parse(localStorage.getItem("list2")) ?? [],
   checkedList: JSON.parse(localStorage.getItem("checkedList2")) ?? [],
+  isUpdate: false,
+  selectedIndex: null,
+
+  // selectedFinishedIndex: null, => Untuk pindah (Undo) = Progress
 };
 
 function setState(newState) {
@@ -24,6 +28,13 @@ function onStateChange(prevState, nextState) {
     localStorage.setItem("list2", JSON.stringify(state.list));
     localStorage.setItem("checkedList2", JSON.stringify(state.checkedList));
   }
+
+  // Untuk pindah (Undo) => progress
+  // if (prevState.selectedIndex !== nextState.selectedIndex) {
+  //   state.list.splice(state.selectedIndex, 1);
+  //   localStorage.setItem("list2", JSON.stringify(state.list));
+  //   localStorage.setItem("checkedList2", JSON.stringify(state.checkedList));
+  // }
 }
 
 function truncate(text) {
@@ -37,6 +48,7 @@ function AddToDo() {
   const input = document.createElement("input");
   input.autocomplete = "off";
   input.placeholder = "Type to add...";
+  input.id = "input";
 
   const addButton = document.createElement("button");
   addButton.textContent = "Add";
@@ -44,11 +56,9 @@ function AddToDo() {
   const editButton = document.createElement("button");
   editButton.textContent = "Update";
 
-  editButton.style.display = "none";
-
   input.value = state.inputValue;
   input.oninput = function (event) {
-    state.inputValue = event.target.value;
+    setState({ inputValue: event.target.value });
   };
 
   addButton.onclick = function () {
@@ -56,8 +66,7 @@ function AddToDo() {
       alert("Please fill the input");
     }
     if (state.inputValue !== "") {
-      setState({ list: [...state.list, state.inputValue] });
-      setState({ inputValue: "" });
+      setState({ list: [...state.list, state.inputValue], inputValue: "" });
     }
   };
 
@@ -66,11 +75,14 @@ function AddToDo() {
       alert("Please fill the input");
     }
     if (state.inputValue !== "") {
-      setState({ list: [...state.list, state.inputValue] });
-      setState({ inputValue: "" });
+      const newList = [...state.list];
+      newList[state.selectedIndex] = state.inputValue;
 
-      addButton.style.display = "block";
-      editButton.style.display = "none";
+      setState({
+        list: newList,
+        isUpdate: false,
+        inputValue: "",
+      });
     }
   };
 
@@ -102,23 +114,22 @@ function AddToDo() {
     li.textContent = truncate(data);
 
     checkedIcon.onclick = function () {
-      state.list.splice(i, 1);
-      setState({ checkedList: [...state.checkedList, data] });
+      state.list.splice(i, 1)
+      setState({
+        selectedIndex: i,
+        checkedList: [...state.checkedList, data],
+        inputValue: "",
+        isUpdate: false,
+      });
     };
 
     editIcon.onclick = function () {
-      state.inputValue = data;
-      input.value = state.inputValue;
-
-      state.list.splice(i, 1);
-
-      addButton.style.display = "none";
-      editButton.style.display = "block";
+      setState({ isUpdate: true, inputValue: data, selectedIndex: i });
     };
 
     deleteIcon.onclick = function () {
       state.list.splice(i, 1);
-      setState({ list: [...state.list] });
+      setState({ selectedIndex: i, list: [...state.list], isUpdate: false, inputValue: "" });
     };
 
     const wrapperLeft = document.createElement("div");
@@ -153,8 +164,10 @@ function AddToDo() {
   const inputWrapper = document.createElement("div");
 
   inputWrapper.append(input);
-  inputWrapper.append(addButton);
-  inputWrapper.append(editButton);
+
+  state.isUpdate
+    ? inputWrapper.append(editButton)
+    : inputWrapper.append(addButton);
 
   div.append(inputWrapper);
   div.append(listContainer);
@@ -202,14 +215,21 @@ function CheckedToDo() {
 
     li.textContent = truncate(data);
 
-    undoIcon.onclick = function () {
-      state.checkedList.splice(i, 1);
-      setState({ list: [...state.list, data] });
-    };
+    // Progress
+    // undoIcon.onclick = function () {
+    // const selectedFinishedIndex = i
+    // console.log(selectedFinishedIndex);
+
+    // const undoList = [...state.list];
+    // undoList[state.selectedIndex] = data;
+
+    // state.checkedList.splice(i, 1);
+    // setState({ list: newList });
+    // };
 
     deleteIcon.onclick = function () {
       state.checkedList.splice(i, 1);
-      setState({ checkedList: state.checkedList });
+      setState({ selectedIndex: i, checkedList: state.checkedList });
     };
 
     const listWrapper = document.createElement("div");
@@ -249,9 +269,21 @@ function CheckedToDo() {
 
 function render() {
   const root = document.getElementById("root");
+
+  const focusedElementId = document.activeElement.id;
+  const focusedElementSelectionStart = document.activeElement.selectionStart;
+  const focusedElementSelectionEnd = document.activeElement.selectionEnd;
+
   root.innerHTML = "";
   root.append(AddToDo());
   root.append(CheckedToDo());
+
+  if (focusedElementId) {
+    const focusedElement = document.getElementById(focusedElementId);
+    focusedElement.focus();
+    focusedElement.selectionStart = focusedElementSelectionStart;
+    focusedElement.selectionEnd = focusedElementSelectionEnd;
+  }
 
   // Style
   root.style.width = "fit-content";
