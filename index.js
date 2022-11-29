@@ -210,7 +210,7 @@ function CheckedToDo() {
 
     deleteIcon.onclick = function () {
       state.checkedList.splice(i, 1);
-      setState({ checkedList: [...state.checkedList] });
+      setState({ checkedList: state.checkedList });
     };
 
     const listWrapper = document.createElement("div");
