@@ -4,10 +4,10 @@ import { ItemNotFound } from "./utils/ItemNotFound.js";
 const baseUrl = "https://dummyjson.com/products/search?q="
 
 let state = {
-  datas: [],
+  datas: null,
   searchInputValue: "",
-  isLoading: true,
-  isSearch: false,
+  isLoading: null,
+  isSearch: null,
   isError: null,
 };
 
@@ -57,17 +57,13 @@ function HomePage() {
   div.append(searchInput);
   div.append(searchButton);
 
-  if (state.isLoading === true) {
+  if (state.datas === null || state.isLoading === true) {
     div.append(Loader());
     searchButton.disabled = "true";
     searchInput.disabled = "true";
   }
 
-  if (
-    state.isLoading === false &&
-    state.datas.length === 0 &&
-    state.isError === null
-  ) {
+  if (state.isLoading === false && state.datas.length === 0 && state.isError === null) {
     div.append(ItemNotFound());
   }
 
