@@ -1,8 +1,9 @@
 import { Loader } from "./utils/Loader.js";
 import { ItemNotFound } from "./utils/ItemNotFound.js";
 
+const baseUrl = "https://dummyjson.com/products/search?q="
+
 let state = {
-  baseUrl: "https://dummyjson.com/products/search?q=",
   datas: [],
   searchInputValue: "",
   isLoading: true,
@@ -19,23 +20,20 @@ function setState(newState) {
   onStateChange(prevState, nextState);
 }
 
+function fetchDatas() {
+  fetch(`${baseUrl}${state.searchInputValue}`)
+    .then((res) => res.json())
+    .then((res) => setState({ datas: res.products, isLoading: false, isSearch: false, searchInputValue: "" }))
+    .catch((err) => setState({ isError: err }))
+}
+
+fetchDatas();
+
 function onStateChange(prevState, nextState) {
   if (nextState.isSearch === true) {
     fetchDatas();
   }
 }
-
-async function fetchDatas() {
-  await fetch(`${state.baseUrl}${state.searchInputValue}`)
-    .then((res) => res.json())
-    .then((res) => setState({ datas: res.products }))
-    .catch((err) => setState({ isError: err }))
-    .finally(() =>
-      setState({ isLoading: false, isSearch: false, searchInputValue: "" })
-    );
-}
-
-fetchDatas();
 
 function HomePage() {
   const div = document.createElement("div");
@@ -77,7 +75,7 @@ function HomePage() {
     div.append(errorMsg);
   }
 
-  if (state.isLoading === false) {
+  if (state.datas !== null && state.isLoading === false) {
     state.datas.forEach((data) => {
       const li = document.createElement("p");
       li.textContent = data.title;
