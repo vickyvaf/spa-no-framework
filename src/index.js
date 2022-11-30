@@ -62,6 +62,7 @@ function HomePage() {
   if (state.isLoading === true) {
     div.append(Loader());
     searchButton.disabled = "true";
+    searchInput.disabled = "true";
   }
 
   if (
@@ -106,8 +107,8 @@ function render() {
   root.innerHTML = "";
   root.append(HomePage());
 
-  root.style.maxWidth = "fit-content"
-  root.style.margin = "0 auto"
+  root.style.maxWidth = "fit-content";
+  root.style.margin = "0 auto";
 
   if (focusedElementId) {
     const focusedElement = document.getElementById(focusedElementId);
