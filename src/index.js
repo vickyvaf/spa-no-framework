@@ -94,7 +94,7 @@ function HomePage() {
     paginateCounter.textContent = `${state.skip} - ${state.skip + state.limit} / ${state.total}`
   }
   if (state.datas.length < state.limit) {
-    paginateCounter.textContent = `0 - ${state.datas.length} / ${state.total}`
+    paginateCounter.textContent = `0 - ${state.datas.length} / ${state.datas.length}`
   }
 
   searchInput.value = state.searchInputValue;
