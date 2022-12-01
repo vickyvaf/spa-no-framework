@@ -1,6 +1,6 @@
 import { Loader } from "./utils/Loader.js";
 import { ItemNotFound } from "./utils/ItemNotFound.js";
-import { fetchDatas } from './request/getProducts.js'
+import { getProducts } from './request/getProducts.js'
 
 let state = {
   datas: [],
@@ -23,7 +23,7 @@ function setState(newState) {
   onStateChange(prevState, nextState);
 }
 
-fetchDatas()
+getProducts()
 
 function truncate(text) {
   if (text.length > 25) {
@@ -34,7 +34,7 @@ function truncate(text) {
 
 function onStateChange(prevState, nextState) {
   if (state.isSearch === true) {
-    fetchDatas()
+    getProducts()
   }
 }
 
