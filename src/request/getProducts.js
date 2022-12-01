@@ -9,12 +9,11 @@ function getProducts() {
             setState({
                 datas: res.products,
                 total: res.total,
-                isLoading: false,
-                isSearch: false,
-                total: res.total,
+                isLoading: false
             })
         })
-        .catch((err) => setState({ isError: err }))
+        .catch((err) => setState({ isError: err.message }))
+        .finally(() => setState({ isLoading: false }))
 }
 
 export {

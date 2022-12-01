@@ -5,9 +5,8 @@ import { getProducts } from './request/getProducts.js'
 let state = {
   datas: [],
   searchInputValue: "",
-  isLoading: true,
-  isSearch: null,
-  isError: null,
+  isLoading: false,
+  isError: "",
   // 
   limit: 10,
   skip: 0,
@@ -23,7 +22,7 @@ function setState(newState) {
   onStateChange(prevState, nextState);
 }
 
-getProducts()
+setState({ isLoading: true })
 
 function truncate(text) {
   if (text.length > 25) {
@@ -33,7 +32,7 @@ function truncate(text) {
 }
 
 function onStateChange(prevState, nextState) {
-  if (state.isSearch === true) {
+  if (state.isLoading === true) {
     getProducts()
   }
 }
@@ -103,11 +102,11 @@ function HomePage() {
     searchInput.disabled = "true";
   }
 
-  if (state.isLoading === false && state.datas.length === 0 && state.isError === null) {
+  if (state.isLoading === false && state.datas.length === 0 && state.isError === "") {
     div.append(ItemNotFound());
   }
 
-  if (state.isError !== null) {
+  if (state.isError !== "") {
     div.append(errorMsg);
   }
 
@@ -121,7 +120,7 @@ function HomePage() {
   }
 
   searchButton.onclick = function () {
-    setState({ isSearch: true, isLoading: true, skip: 0, total: 0 });
+    setState({ isLoading: true, skip: 0, total: 0 });
   };
 
   const downWrapper = document.createElement("div")
