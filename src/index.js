@@ -2,7 +2,6 @@ import { Loader } from "./utils/Loader.js";
 import { ItemNotFound } from "./utils/ItemNotFound.js";
 
 const baseUrl = "https://dummyjson.com/products/search?q="
-const paginateUrl = "https://dummyjson.com/products?limit="
 
 let state = {
   datas: [],
@@ -14,7 +13,6 @@ let state = {
   limit: 10,
   skip: 0,
   total: null,
-  isPaginate: true,
 };
 
 function setState(newState) {
@@ -27,37 +25,21 @@ function setState(newState) {
 }
 
 function fetchDatas() {
-  fetch(`${baseUrl}${state.searchInputValue}`)
-    .then((res) => res.json())
-    .then((res) => {
-      setState({
-        datas: res.products,
-        isPaginate: false,
-        searchInputValue: "",
-        isLoading: false,
-        isSearch: false
-      })
-    })
-    .catch((err) => setState({ isError: err }))
-}
-
-function paginate() {
-  fetch(`${paginateUrl}${state.limit}&skip=${state.skip}`)
+  fetch(`${baseUrl}${state.searchInputValue}&limit=${state.limit}&skip=${state.skip}`)
     .then((res) => res.json())
     .then((res) => {
       setState({
         datas: res.products,
         total: res.total,
-        isPaginate: false,
-        searchInputValue: "",
         isLoading: false,
         isSearch: false,
+        total: res.total,
       })
     })
     .catch((err) => setState({ isError: err }))
 }
 
-paginate()
+fetchDatas()
 
 function truncate(text) {
   if (text.length > 25) {
@@ -67,10 +49,7 @@ function truncate(text) {
 }
 
 function onStateChange(prevState, nextState) {
-  if (nextState.isPaginate === true || nextState.isSearch === true && nextState.searchInputValue === "") {
-    paginate()
-  }
-  if (nextState.isSearch === true && nextState.searchInputValue !== "") {
+  if (state.isSearch === true) {
     fetchDatas()
   }
 }
@@ -90,11 +69,12 @@ function HomePage() {
   errorMsg.textContent = state.isError;
 
   const paginateCounter = document.createElement("p")
-  if (state.datas.length !== 0) {
-    paginateCounter.textContent = `${state.skip} - ${state.skip + state.limit} / ${state.total}`
+  paginateCounter.textContent = "- - - - -"
+  if (state.datas.length !== 0 && state.isLoading === false) {
+    paginateCounter.textContent = `${state.skip} - ${state.datas.length + state.skip} / ${state.total}`
   }
-  if (state.datas.length < state.limit) {
-    paginateCounter.textContent = `0 - ${state.datas.length} / ${state.datas.length}`
+  if (state.datas.length < state.limit && state.isLoading === false) {
+    paginateCounter.textContent = `${state.skip} - ${state.datas.length + state.skip} / ${state.total}`
   }
 
   searchInput.value = state.searchInputValue;
@@ -109,14 +89,14 @@ function HomePage() {
   prevPage.textContent = "<"
 
   nextPage.onclick = function () {
-    setState({ skip: state.skip += 10, isPaginate: true, isLoading: true })
+    setState({ skip: state.skip += 10, isLoading: true, isSearch: true })
   }
 
   prevPage.onclick = function () {
-    setState({ skip: state.skip -= 10, isPaginate: true, isLoading: true })
+    setState({ skip: state.skip -= 10, isLoading: true, isSearch: true })
   }
 
-  if (state.skip === 0 || state.isLoading === true || state.datas.length < state.limit) {
+  if (state.skip === 0 || state.isLoading === true) {
     prevPage.style.cursor = "not-allowed"
     prevPage.disabled = "true"
   } else {
@@ -160,7 +140,7 @@ function HomePage() {
   }
 
   searchButton.onclick = function () {
-    setState({ isSearch: true, isLoading: true, isPaginate: false });
+    setState({ isSearch: true, isLoading: true, skip: 0, total: 0 });
   };
 
   const downWrapper = document.createElement("div")
