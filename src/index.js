@@ -1,7 +1,6 @@
 import { Loader } from "./utils/Loader.js";
 import { ItemNotFound } from "./utils/ItemNotFound.js";
-
-const baseUrl = "https://dummyjson.com/products/search?q="
+import { fetchDatas } from './request/getProducts.js'
 
 let state = {
   datas: [],
@@ -22,21 +21,6 @@ function setState(newState) {
 
   render();
   onStateChange(prevState, nextState);
-}
-
-function fetchDatas() {
-  fetch(`${baseUrl}${state.searchInputValue}&limit=${state.limit}&skip=${state.skip}`)
-    .then((res) => res.json())
-    .then((res) => {
-      setState({
-        datas: res.products,
-        total: res.total,
-        isLoading: false,
-        isSearch: false,
-        total: res.total,
-      })
-    })
-    .catch((err) => setState({ isError: err }))
 }
 
 fetchDatas()
@@ -181,3 +165,8 @@ function render() {
 }
 
 render();
+
+export {
+  state,
+  setState
+}
