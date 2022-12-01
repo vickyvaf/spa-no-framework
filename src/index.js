@@ -73,9 +73,6 @@ function HomePage() {
   if (state.datas.length !== 0 && state.isLoading === false) {
     paginateCounter.textContent = `${state.skip} - ${state.datas.length + state.skip} / ${state.total}`
   }
-  if (state.datas.length < state.limit && state.isLoading === false) {
-    paginateCounter.textContent = `${state.skip} - ${state.datas.length + state.skip} / ${state.total}`
-  }
 
   searchInput.value = state.searchInputValue;
   searchInput.oninput = function (event) {
