@@ -93,8 +93,8 @@ function HomePage() {
   if (state.datas.length !== 0) {
     paginateCounter.textContent = `${state.skip} - ${state.skip + state.limit} / ${state.total}`
   }
-  if (state.datas.length === 0) {
-    paginateCounter.textContent = "0 - 0 / 0"
+  if (state.datas.length < state.limit) {
+    paginateCounter.textContent = `0 - ${state.datas.length} / ${state.total}`
   }
 
   searchInput.value = state.searchInputValue;
@@ -133,6 +133,7 @@ function HomePage() {
   const upWrapper = document.createElement("div")
   upWrapper.append(searchInput);
   upWrapper.append(searchButton);
+  upWrapper.append(listWrapper)
   div.append(upWrapper)
 
   if (state.datas === null || state.isLoading === true) {
@@ -167,7 +168,6 @@ function HomePage() {
   downWrapper.append(nextPage)
   downWrapper.append(paginateCounter)
 
-  div.append(listWrapper);
   div.append(downWrapper)
 
   div.style.height = "450px"
