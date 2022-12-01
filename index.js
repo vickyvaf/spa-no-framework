@@ -4,8 +4,6 @@ let state = {
   checkedList: JSON.parse(localStorage.getItem("checkedList2")) ?? [],
   isUpdate: false,
   selectedIndex: null,
-
-  // selectedFinishedIndex: null, => Untuk pindah (Undo) = Progress
 };
 
 function setState(newState) {
@@ -28,13 +26,6 @@ function onStateChange(prevState, nextState) {
     localStorage.setItem("list2", JSON.stringify(state.list));
     localStorage.setItem("checkedList2", JSON.stringify(state.checkedList));
   }
-
-  // Untuk pindah (Undo) => progress
-  // if (prevState.selectedIndex !== nextState.selectedIndex) {
-  //   state.list.splice(state.selectedIndex, 1);
-  //   localStorage.setItem("list2", JSON.stringify(state.list));
-  //   localStorage.setItem("checkedList2", JSON.stringify(state.checkedList));
-  // }
 }
 
 function truncate(text) {
@@ -114,9 +105,9 @@ function AddToDo() {
     li.textContent = truncate(data);
 
     checkedIcon.onclick = function () {
-      state.list.splice(i, 1)
+      const filteredData = state.list.filter((_, indexList) => indexList !== i)
       setState({
-        selectedIndex: i,
+        list: [...filteredData],
         checkedList: [...state.checkedList, data],
         inputValue: "",
         isUpdate: false,
@@ -128,8 +119,12 @@ function AddToDo() {
     };
 
     deleteIcon.onclick = function () {
-      state.list.splice(i, 1);
-      setState({ selectedIndex: i, list: [...state.list], isUpdate: false, inputValue: "" });
+      const filteredData = state.list.filter((_, indexList) => indexList !== i)
+      setState({
+        list: [...filteredData],
+        isUpdate: false,
+        inputValue: ""
+      });
     };
 
     const wrapperLeft = document.createElement("div");
@@ -201,12 +196,6 @@ function CheckedToDo() {
   state.checkedList.forEach((data, i) => {
     const li = document.createElement("s");
 
-    const undoIcon = document.createElement("img");
-    undoIcon.src = "./public/icons/undo.png";
-    undoIcon.style.width = "1em";
-    undoIcon.style.height = "1em";
-    undoIcon.style.cursor = "pointer";
-
     const deleteIcon = document.createElement("img");
     deleteIcon.src = "./public/icons/delete.png";
     deleteIcon.style.width = "1em";
@@ -215,27 +204,14 @@ function CheckedToDo() {
 
     li.textContent = truncate(data);
 
-    // Progress
-    // undoIcon.onclick = function () {
-    // const selectedFinishedIndex = i
-    // console.log(selectedFinishedIndex);
-
-    // const undoList = [...state.list];
-    // undoList[state.selectedIndex] = data;
-
-    // state.checkedList.splice(i, 1);
-    // setState({ list: newList });
-    // };
-
     deleteIcon.onclick = function () {
-      state.checkedList.splice(i, 1);
-      setState({ selectedIndex: i, checkedList: state.checkedList });
+      const filteredData = state.checkedList.filter((_, indexList) => indexList !== i)
+      setState({ checkedList: [...filteredData] });
     };
 
     const listWrapper = document.createElement("div");
     const iconWrapper = document.createElement("div");
 
-    iconWrapper.append(undoIcon);
     iconWrapper.append(deleteIcon);
 
     listWrapper.append(li);
@@ -285,7 +261,6 @@ function render() {
     focusedElement.selectionEnd = focusedElementSelectionEnd;
   }
 
-  // Style
   root.style.width = "fit-content";
   root.style.margin = "0 auto";
   root.style.display = "flex";
