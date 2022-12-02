@@ -15,6 +15,67 @@ function setState(newState) {
   onStateChange(prevState, nextState);
 }
 
+function reducer(prevState, action) {
+  switch (action.type) {
+    case "CHANGE_INPUT": {
+      return {
+        ...prevState,
+        inputValue: action.payload.inputValue,
+      };
+    }
+    case "ADD": {
+      return {
+        ...prevState,
+        inputValue: "",
+        list: action.payload.list,
+      };
+    }
+    case "EDIT_ICON": {
+      return {
+        ...prevState,
+        isUpdate: true,
+        inputValue: action.payload.inputValue,
+        selectedIndex: action.payload.selectedIndex
+      };
+    }
+    case "EDIT_BUTTON": {
+      return {
+        isUpdate: false,
+        inputValue: "",
+        list: action.paylaod.list
+      };
+    }
+    case "DELETE": {
+      return {
+        list: action.payload.list
+      }
+    }
+    case "DELETE_FINISHED": {
+      return {
+        ...prevState,
+        checkedList: action.payload.checkedList,
+      };
+    }
+    case "CHECKED_LIST": {
+      return {
+        ...prevState,
+        inputValue: "",
+        isUpdate: false,
+        list: action.payload.list,
+        checkedList: action.payload.checkedList,
+      };
+    }
+    default: {
+      return prevState
+    }
+  }
+}
+
+function send(action) {
+  const newState = reducer(state, action);
+  setState(newState);
+}
+
 function onStateChange(prevState, nextState) {
   if (prevState.list !== nextState.list) {
     localStorage.setItem("list2", JSON.stringify(state.list));
@@ -49,7 +110,12 @@ function AddToDo() {
 
   input.value = state.inputValue;
   input.oninput = function (event) {
-    setState({ inputValue: event.target.value });
+    send({
+      type: "CHANGE_INPUT",
+      payload: {
+        inputValue: event.target.value,
+      },
+    });
   };
 
   addButton.onclick = function () {
@@ -57,7 +123,12 @@ function AddToDo() {
       alert("Please fill the input");
     }
     if (state.inputValue !== "") {
-      setState({ list: [...state.list, state.inputValue], inputValue: "" });
+      send({
+        type: "ADD",
+        payload: {
+          list: [...state.list, state.inputValue],
+        },
+      });
     }
   };
 
@@ -69,10 +140,11 @@ function AddToDo() {
       const newList = [...state.list];
       newList[state.selectedIndex] = state.inputValue;
 
-      setState({
-        list: newList,
-        isUpdate: false,
-        inputValue: "",
+      send({
+        type: "EDIT_BUTTON",
+        paylaod: {
+          list: newList,
+        },
       });
     }
   };
@@ -105,25 +177,33 @@ function AddToDo() {
     li.textContent = truncate(data);
 
     checkedIcon.onclick = function () {
-      const filteredData = state.list.filter((_, indexList) => indexList !== i)
-      setState({
-        list: [...filteredData],
-        checkedList: [...state.checkedList, data],
-        inputValue: "",
-        isUpdate: false,
+      const filteredData = state.list.filter((_, indexList) => indexList !== i);
+      send({
+        type: "CHECKED_LIST",
+        payload: {
+          list: filteredData,
+          checkedList: [...state.checkedList, data],
+        },
       });
     };
 
     editIcon.onclick = function () {
-      setState({ isUpdate: true, inputValue: data, selectedIndex: i });
+      send({
+        type: "EDIT_ICON",
+        payload: {
+          inputValue: data,
+          selectedIndex: i,
+        },
+      });
     };
 
     deleteIcon.onclick = function () {
-      const filteredData = state.list.filter((_, indexList) => indexList !== i)
-      setState({
-        list: [...filteredData],
-        isUpdate: false,
-        inputValue: ""
+      const filteredData = state.list.filter((_, indexList) => indexList !== i);
+      send({
+        type: "DELETE",
+        payload: {
+          list: filteredData,
+        },
       });
     };
 
@@ -205,8 +285,15 @@ function CheckedToDo() {
     li.textContent = truncate(data);
 
     deleteIcon.onclick = function () {
-      const filteredData = state.checkedList.filter((_, indexList) => indexList !== i)
-      setState({ checkedList: [...filteredData] });
+      const filteredData = state.checkedList.filter(
+        (_, indexList) => indexList !== i
+      );
+      send({
+        type: "DELETE_FINISHED",
+        payload: {
+          checkedList: filteredData,
+        },
+      });
     };
 
     const listWrapper = document.createElement("div");
