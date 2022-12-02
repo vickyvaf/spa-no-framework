@@ -69,6 +69,9 @@ function reducer(prevState, action) {
         skip: (state.skip -= 10),
       };
     }
+    default: {
+      return prevState;
+    }
   }
 }
 
