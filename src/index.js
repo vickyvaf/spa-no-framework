@@ -1,7 +1,7 @@
 import { Loader } from "./utils/Loader.js";
 import { ItemNotFound } from "./utils/ItemNotFound.js";
 import { truncate } from "./utils/truncate.js";
-// import { debounce } from "./utils/debounce.js";
+import { useDebounce } from "./utils/debounce.js";
 import { getProducts } from "./request/getProducts.js";
 import { reducer } from "./store/reducers/index.js";
 import selectPagination from "./components/SelectPagination.js";
@@ -30,15 +30,13 @@ function dispatch(action) {
   setState(newState);
 }
 
+const debounce = useDebounce(() => {
+  dispatch({ type: "SEARCH" });
+})
+
 function onStateChange(prevState, nextState) {
   if (state.isLoading === true) {
     getProducts();
-  }
-  if (prevState.searchInputValue !== nextState.searchInputValue) {
-    if (nextState.searchInputValue) clearTimeout(nextState.searchInputValue);
-    setTimeout(() => {
-      getProducts();
-    }, 800);
   }
 }
 
@@ -66,10 +64,13 @@ function HomePage() {
 
   searchInput.value = state.searchInputValue;
   searchInput.oninput = function (event) {
-    dispatch({
-      type: "CHANGE_INPUT",
-      payload: { searchInputValue: event.target.value },
-    });
+    debounce(
+      dispatch({
+        type: "CHANGE_INPUT",
+        isLoading: true,
+        payload: { searchInputValue: event.target.value },
+      })
+    )
   };
 
   const nextPage = document.createElement("button");

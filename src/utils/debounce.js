@@ -1,9 +1,10 @@
-import { state } from "../index.js";
+export function useDebounce(cb, delay = 700) {
+  let timeout;
 
-export function debounce(func, delay) {
-  if (state.searchInputValue !== "") clearTimeout(state.searchInputValue);
-
-  return setTimeout(() => {
-    func();
-  }, delay);
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      cb(...args);
+    }, delay);
+  };
 }
