@@ -1,8 +1,10 @@
 import { Loader } from "./utils/Loader.js";
 import { ItemNotFound } from "./utils/ItemNotFound.js";
 import { truncate } from "./utils/truncate.js";
+// import { debounce } from "./utils/debounce.js";
 import { getProducts } from "./request/getProducts.js";
 import { reducer } from "./store/reducers/index.js";
+import selectPagination from "./components/SelectPagination.js";
 
 let state = {
   datas: [],
@@ -31,6 +33,12 @@ function dispatch(action) {
 function onStateChange(prevState, nextState) {
   if (state.isLoading === true) {
     getProducts();
+  }
+  if (prevState.searchInputValue !== nextState.searchInputValue) {
+    if (nextState.searchInputValue) clearTimeout(nextState.searchInputValue);
+    setTimeout(() => {
+      getProducts();
+    }, 800);
   }
 }
 
@@ -69,14 +77,6 @@ function HomePage() {
 
   const prevPage = document.createElement("button");
   prevPage.textContent = "<";
-
-  nextPage.onclick = function () {
-    dispatch({ type: "NEXT_PAGE" });
-  };
-
-  prevPage.onclick = function () {
-    dispatch({ type: "PREV_PAGE" });
-  };
 
   if (state.skip === 0 || state.isLoading === true) {
     prevPage.style.cursor = "not-allowed";
@@ -133,14 +133,24 @@ function HomePage() {
     dispatch({ type: "SEARCH" });
   };
 
+  nextPage.onclick = function () {
+    dispatch({ type: "NEXT_PAGE" });
+  };
+
+  prevPage.onclick = function () {
+    dispatch({ type: "PREV_PAGE" });
+  };
+
   const downWrapper = document.createElement("div");
   downWrapper.append(prevPage);
   downWrapper.append(nextPage);
-  downWrapper.append(paginateCounter);
+  const countView = document.createElement("div");
+  countView.append(selectPagination(), paginateCounter);
+  downWrapper.append(countView);
 
   div.append(downWrapper);
 
-  div.style.height = "450px";
+  div.style.minHeight = "300px";
   div.style.display = "flex";
   div.style.flexDirection = "column";
   div.style.justifyContent = "space-between";
@@ -148,6 +158,10 @@ function HomePage() {
   searchButton.style.cursor = "pointer";
   prevPage.style.width = "50%";
   nextPage.style.width = "50%";
+
+  countView.style.display = "flex";
+  countView.style.alignItems = "center";
+  countView.style.gap = "1rem";
 
   return div;
 }
@@ -176,4 +190,4 @@ function render() {
 render();
 dispatch({ type: "FETCH" });
 
-export { state, setState };
+export { state, setState, dispatch };

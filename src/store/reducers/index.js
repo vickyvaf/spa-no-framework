@@ -1,4 +1,4 @@
-import { state, setState } from "../../index.js";
+import { state } from "../../index.js";
 
 export function reducer(prevState, action) {
   switch (action.type) {
@@ -37,14 +37,21 @@ export function reducer(prevState, action) {
       return {
         ...prevState,
         isLoading: true,
-        skip: (state.skip += 10),
+        skip: parseInt((state.skip += state.limit)),
       };
     }
     case "PREV_PAGE": {
       return {
         ...prevState,
         isLoading: true,
-        skip: (state.skip -= 10),
+        skip: parseInt((state.skip -= state.limit)),
+      };
+    }
+    case "PAGINATION": {
+      return {
+        ...prevState,
+        isLoading: true,
+        limit: parseInt(action.payload.limit),
       };
     }
     default: {
