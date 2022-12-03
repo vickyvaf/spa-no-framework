@@ -2,6 +2,7 @@ import { Loader } from "./utils/Loader.js";
 import { ItemNotFound } from "./utils/ItemNotFound.js";
 import { truncate } from "./utils/truncate.js";
 import { getProducts } from "./request/getProducts.js";
+import { reducer } from "./store/reducers/index.js";
 
 let state = {
   datas: [],
@@ -22,60 +23,7 @@ function setState(newState) {
   onStateChange(prevState, nextState);
 }
 
-function reducer(prevState, action) {
-  switch (action.type) {
-    case "FETCH": {
-      return {
-        ...prevState,
-        isLoading: true,
-      };
-    }
-    case "CHANGE_INPUT": {
-      return {
-        ...prevState,
-        searchInputValue: action.payload.searchInputValue,
-      };
-    }
-    case "SEARCH": {
-      return {
-        isLoading: true,
-        skip: 0,
-        total: 0,
-      };
-    }
-    case "FETCH_SUCCESS": {
-      return {
-        isLoading: false,
-        datas: action.payload.datas,
-        total: action.payload.total,
-      };
-    }
-    case "FETCH_ERROR": {
-      return {
-        errorMsg: action.payload.errorMsg,
-      };
-    }
-    case "NEXT_PAGE": {
-      return {
-        ...prevState,
-        isLoading: true,
-        skip: (state.skip += 10),
-      };
-    }
-    case "PREV_PAGE": {
-      return {
-        ...prevState,
-        isLoading: true,
-        skip: (state.skip -= 10),
-      };
-    }
-    default: {
-      return prevState;
-    }
-  }
-}
-
-function send(action) {
+function dispatch(action) {
   const newState = reducer(state, action);
   setState(newState);
 }
@@ -110,7 +58,7 @@ function HomePage() {
 
   searchInput.value = state.searchInputValue;
   searchInput.oninput = function (event) {
-    send({
+    dispatch({
       type: "CHANGE_INPUT",
       payload: { searchInputValue: event.target.value },
     });
@@ -123,11 +71,11 @@ function HomePage() {
   prevPage.textContent = "<";
 
   nextPage.onclick = function () {
-    send({ type: "NEXT_PAGE" });
+    dispatch({ type: "NEXT_PAGE" });
   };
 
   prevPage.onclick = function () {
-    send({ type: "PREV_PAGE" });
+    dispatch({ type: "PREV_PAGE" });
   };
 
   if (state.skip === 0 || state.isLoading === true) {
@@ -182,7 +130,7 @@ function HomePage() {
   }
 
   searchButton.onclick = function () {
-    send({ type: "SEARCH" });
+    dispatch({ type: "SEARCH" });
   };
 
   const downWrapper = document.createElement("div");
@@ -226,6 +174,6 @@ function render() {
 }
 
 render();
-send({ type: "FETCH" });
+dispatch({ type: "FETCH" });
 
-export { state, send };
+export { state, setState };

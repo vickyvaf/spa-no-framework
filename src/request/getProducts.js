@@ -1,4 +1,4 @@
-import { state, send } from "../index.js";
+import { state, dispatch } from "../index.js";
 
 const baseUrl = "https://dummyjson.com/products/search?q=";
 
@@ -8,13 +8,13 @@ function getProducts() {
   )
     .then((res) => res.json())
     .then((res) =>
-      send({
+      dispatch({
         type: "FETCH_SUCCESS",
         payload: { datas: res.products, total: res.total },
       })
     )
     .catch((err) =>
-      send({
+      dispatch({
         type: "FETCH_ERROR",
         payload: { errorMsg: err.message },
       })
