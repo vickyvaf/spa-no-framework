@@ -106,7 +106,7 @@ function HomePage() {
   if (state.datas === null || state.isLoading === true) {
     div.append(Loader());
     searchButton.disabled = "true";
-    searchInput.disabled = "true";
+    // searchInput.disabled = "true";
   }
 
   if (
