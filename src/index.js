@@ -1,0 +1,190 @@
+import { Loader } from "./utils/Loader.js";
+import { ItemNotFound } from "./utils/ItemNotFound.js";
+import { truncate } from "./utils/truncate.js";
+import { useDebounce } from "./utils/debounce.js";
+import { getProducts } from "./request/getProducts.js";
+import { reducer } from "./store/reducers/index.js";
+import selectPagination from "./components/SelectPagination.js";
+
+let state = {
+  tag: "idle",
+
+  products: [],
+  searchInputValue: "",
+  errorMsg: "",
+  limit: 10,
+  skip: 0,
+  total: null,
+};
+
+function setState(newState) {
+  const prevState = { ...state };
+  const nextState = { ...state, ...newState };
+  state = nextState;
+
+  render();
+  onStateChange(prevState, nextState);
+}
+
+function dispatch(action) {
+  const newState = reducer(state, action);
+  setState(newState);
+}
+
+const debounce = useDebounce(() => {
+  dispatch({ type: "SEARCH" });
+});
+
+function onStateChange(prevState, nextState) {
+  if (nextState.tag === "loading") {
+    getProducts();
+  }
+}
+
+function HomePage() {
+  const div = document.createElement("div");
+  const listWrapper = document.createElement("div");
+
+  const searchInput = document.createElement("input");
+  searchInput.autocomplete = "off";
+  searchInput.id = "input";
+
+  const searchButton = document.createElement("button");
+  searchButton.textContent = "Search";
+
+  const errorMsg = document.createElement("p");
+  errorMsg.textContent = state.errorMsg;
+
+  const paginateCounter = document.createElement("p");
+  paginateCounter.textContent = "- - - - -";
+  const lengthDatas = state.products.length;
+  if (lengthDatas !== 0 && state.tag === "loaded") {
+    paginateCounter.textContent = `${state.skip} - ${
+      lengthDatas + state.skip
+    } / ${state.total}`;
+  }
+
+  searchInput.value = state.searchInputValue;
+  searchInput.oninput = function (event) {
+    debounce(
+      dispatch({
+        type: "CHANGE_INPUT",
+        payload: { searchInputValue: event.target.value },
+      })
+    );
+  };
+
+  const nextPage = document.createElement("button");
+  nextPage.textContent = ">";
+
+  const prevPage = document.createElement("button");
+  prevPage.textContent = "<";
+
+  if (state.skip === 0 || state.tag === "loading") {
+    prevPage.style.cursor = "not-allowed";
+    prevPage.disabled = "true";
+  } else {
+    prevPage.style.cursor = "pointer";
+  }
+
+  if (
+    state.limit + state.skip >= state.total ||
+    state.tag === "loading" ||
+    state.products.length < state.limit
+  ) {
+    nextPage.style.cursor = "not-allowed";
+    nextPage.disabled = "true";
+  } else {
+    nextPage.style.cursor = "pointer";
+  }
+
+  const upWrapper = document.createElement("div");
+  upWrapper.append(searchInput);
+  upWrapper.append(searchButton);
+  upWrapper.append(listWrapper);
+  div.append(upWrapper);
+
+  if (state.tag === "loading") {
+    div.append(Loader());
+    searchButton.disabled = true;
+  }
+
+  if (state.tag === "empty") {
+    div.append(ItemNotFound());
+  }
+
+  if (state.tag === "error") {
+    div.append(errorMsg);
+  }
+
+  if (state.tag === "loaded") {
+    state.products.forEach((data) => {
+      const li = document.createElement("p");
+      li.textContent = truncate(data.title);
+
+      listWrapper.append(li);
+    });
+  }
+
+  searchButton.onclick = function () {
+    dispatch({ type: "SEARCH" });
+  };
+
+  nextPage.onclick = function () {
+    dispatch({ type: "NEXT_PAGE" });
+  };
+
+  prevPage.onclick = function () {
+    dispatch({ type: "PREV_PAGE" });
+  };
+
+  const downWrapper = document.createElement("div");
+  downWrapper.append(prevPage);
+  downWrapper.append(nextPage);
+  const countView = document.createElement("div");
+  countView.append(selectPagination(), paginateCounter);
+  downWrapper.append(countView);
+
+  div.append(downWrapper);
+
+  div.style.minHeight = "300px";
+  div.style.display = "flex";
+  div.style.flexDirection = "column";
+  div.style.justifyContent = "space-between";
+
+  searchButton.style.cursor = "pointer";
+  prevPage.style.width = "50%";
+  nextPage.style.width = "50%";
+
+  countView.style.display = "flex";
+  countView.style.alignItems = "center";
+  countView.style.gap = "1rem";
+
+  return div;
+}
+
+function render() {
+  const root = document.getElementById("root");
+
+  const focusedElementId = document.activeElement.id;
+  const focusedElementSelectionStart = document.activeElement.selectionStart;
+  const focusedElementSelectionEnd = document.activeElement.selectionEnd;
+
+  root.innerHTML = "";
+  root.append(HomePage());
+
+  root.style.maxWidth = "250px";
+  root.style.margin = "0 auto";
+
+  if (focusedElementId) {
+    const focusedElement = document.getElementById(focusedElementId);
+    focusedElement.focus();
+    focusedElement.selectionStart = focusedElementSelectionStart;
+    focusedElement.selectionEnd = focusedElementSelectionEnd;
+  }
+}
+
+render();
+dispatch({ type: "FETCH" });
+
+export { state, setState, dispatch };
