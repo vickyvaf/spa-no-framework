@@ -131,11 +131,17 @@ function HomePage() {
   };
 
   nextPage.onclick = function () {
-    dispatch({ type: "NEXT_PAGE" });
+    dispatch({
+      type: "NEXT_PAGE",
+      payload: { increaseLimit: parseInt((state.skip += state.limit)) },
+    });
   };
 
   prevPage.onclick = function () {
-    dispatch({ type: "PREV_PAGE" });
+    dispatch({
+      type: "PREV_PAGE",
+      payload: { decreaseLimit: parseInt((state.skip -= state.limit)) },
+    });
   };
 
   const downWrapper = document.createElement("div");

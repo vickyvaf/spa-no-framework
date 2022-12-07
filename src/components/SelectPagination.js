@@ -47,8 +47,8 @@ function selectPagination() {
 
   select.onclick = function () {
     dispatch({
-      type: "PAGINATION",
-      payload: { limit: select.value },
+      type: "CHANGE_PAGE_SIZE",
+      payload: { limit: parseInt(select.value) },
     });
   };
 

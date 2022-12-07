@@ -49,12 +49,6 @@ export function reducer(prevState, action) {
     }
     case "loaded": {
       switch (action.type) {
-        case "FETCH": {
-          return {
-            ...prevState,
-            tag: "loading",
-          };
-        }
         case "CHANGE_INPUT": {
           return {
             ...prevState,
@@ -73,33 +67,27 @@ export function reducer(prevState, action) {
           return {
             ...prevState,
             tag: "loading",
-            skip: parseInt((state.skip += state.limit)),
+            skip: action.payload.increaseLimit,
           };
         }
         case "PREV_PAGE": {
           return {
             ...prevState,
             tag: "loading",
-            skip: parseInt((state.skip -= state.limit)),
+            skip: action.payload.decreaseLimit,
           };
         }
-        case "PAGINATION": {
+        case "CHANGE_PAGE_SIZE": {
           return {
             ...prevState,
             tag: "loading",
-            limit: parseInt(action.payload.limit),
+            limit: action.payload.limit,
           };
         }
       }
     }
     case "empty": {
       switch (action.type) {
-        case "FETCH": {
-          return {
-            ...prevState,
-            tag: "loading",
-          };
-        }
         case "CHANGE_INPUT": {
           return {
             ...prevState,
@@ -112,39 +100,12 @@ export function reducer(prevState, action) {
             tag: "loading",
             skip: 0,
             total: 0,
-          };
-        }
-        case "NEXT_PAGE": {
-          return {
-            ...prevState,
-            tag: "loading",
-            skip: parseInt((state.skip += state.limit)),
-          };
-        }
-        case "PREV_PAGE": {
-          return {
-            ...prevState,
-            tag: "loading",
-            skip: parseInt((state.skip -= state.limit)),
-          };
-        }
-        case "PAGINATION": {
-          return {
-            ...prevState,
-            tag: "loading",
-            limit: parseInt(action.payload.limit),
           };
         }
       }
     }
     case "error": {
       switch (action.type) {
-        case "FETCH": {
-          return {
-            ...prevState,
-            tag: "loading",
-          };
-        }
         case "CHANGE_INPUT": {
           return {
             ...prevState,
@@ -157,27 +118,6 @@ export function reducer(prevState, action) {
             tag: "loading",
             skip: 0,
             total: 0,
-          };
-        }
-        case "NEXT_PAGE": {
-          return {
-            ...prevState,
-            tag: "loading",
-            skip: parseInt((state.skip += state.limit)),
-          };
-        }
-        case "PREV_PAGE": {
-          return {
-            ...prevState,
-            tag: "loading",
-            skip: parseInt((state.skip -= state.limit)),
-          };
-        }
-        case "PAGINATION": {
-          return {
-            ...prevState,
-            tag: "loading",
-            limit: parseInt(action.payload.limit),
           };
         }
       }
