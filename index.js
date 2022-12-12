@@ -117,7 +117,7 @@ const afterCalled = after(3, called);
 // CHALLENGE 6
 function delay(func, wait) {
   setTimeout(() => {
-    func()
+    func();
   }, wait);
 }
 
@@ -126,10 +126,20 @@ function delay(func, wait) {
 // }, 1000);
 
 // CHALLENGE 7
-function rollCall(names) {}
+function rollCall(names) {
+  let chooseIdxNames = 0
+  function rollCaller() {
+    if (names.length === chooseIdxNames) {
+      return console.log(names);
+    }
+    console.log(names[chooseIdxNames]);
+    chooseIdxNames++
+  }
+  return rollCaller
+}
 
 // /*** Uncomment these to check your work! ***/
-// const rollCaller = rollCall(['Victoria', 'Juan', 'Ruth'])
+const rollCaller = rollCall(["Victoria", "Juan", "Ruth"]);
 // rollCaller() // => should log 'Victoria'
 // rollCaller() // => should log 'Juan'
 // rollCaller() // => should log 'Ruth'
