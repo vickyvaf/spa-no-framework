@@ -99,7 +99,7 @@ function after(count, func) {
   function afterCalled() {
     counter++;
     if (counter === count) {
-      return func()
+      return func();
     }
   }
   return afterCalled;
@@ -115,7 +115,15 @@ const afterCalled = after(3, called);
 // afterCalled(); // => 'hello' is printed
 
 // CHALLENGE 6
-function delay(func, wait) {}
+function delay(func, wait) {
+  setTimeout(() => {
+    func()
+  }, wait);
+}
+
+// delay(function () {
+//   console.log("Hello");
+// }, 1000);
 
 // CHALLENGE 7
 function rollCall(names) {}
